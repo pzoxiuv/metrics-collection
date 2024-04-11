@@ -44,11 +44,15 @@ def get_time_cmd(outfile):
     return f'/usr/bin/time -f %e -a -o {outfile}'
 
 def get_ncu_cmd(cudadir, outdir, output_prefix, kernel_names, metrics):
-    assert all([' ' not in k for k in kernel_names])
-
     timecmd = get_time_cmd(os.path.join(outdir, f'{output_prefix}.time'))
     ncu_outfile = os.path.join(outdir, f'{output_prefix}.kernel_metrics')
-    kernel_regex = f'::regex:"{"|".join(kernel_names)}":3'
+
+    if kernel_names == None:
+        kernel_regex = f':::3'
+    else:
+        assert all([' ' not in k for k in kernel_names])
+        kernel_regex = f'::regex:"{"|".join(kernel_names)}":3'
+
     return f'{timecmd} ' \
            f'{cudadir}/bin/ncu ' \
            f'--target-processes all '\
@@ -109,6 +113,7 @@ def main():
     parser.add_argument("--output-prefix", default="testing")
     parser.add_argument("--app-cmdline")
     parser.add_argument("--metrics-file")
+    parser.add_argument("--num-kernels", default=5, type=int)
     args = parser.parse_args()
 
     with open(args.in_file) as f:
@@ -118,7 +123,10 @@ def main():
     cuda_ops = [o for o in r if o["Category"] == "CUDA_KERNEL"]
 
     sorted_ops = sorted(cuda_ops, reverse=True, key=lambda x: x["Time (%)"])
-    kernel_names = [parse_func_signature(op['Operation']) for op in sorted_ops[:5]]
+    if args.num_kernels == -1:
+        kernel_names = None
+    else:
+        kernel_names = [parse_func_signature(op['Operation']) for op in sorted_ops[:5]]
     ncu_cmd = get_ncu_cmd(args.cuda_dir, 
                           args.out_dir, 
                           args.output_prefix, 

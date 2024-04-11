@@ -62,12 +62,19 @@ $DOCKERSUDO docker exec ${app} \
 			--output /output/${app}/${gpu} \
 			/output/${app}/${gpu}.${app}.nsys_prof.nsys-rep
 
+if [ $app = "rodinia" ]; then
+	num_kernels=-1
+else
+	num_kernels=5
+fi
+
 python3 ${script_dir}/parse-gpusum.py \
 	--in-file ${output_dir}/${app}/${gpu}_gpusum.json \
 	--out-dir /output/${app} \
 	--output-prefix ${gpu} \
 	--metrics-file ${script_dir}/metrics.json \
 	--app-cmdline "bash /output/${app}/app-cmd.sh" \
+	--num-kernels ${num_kernels} \
 	| tee ${output_dir}/${app}/ncu-${app}.sh
 
 $DOCKERSUDO docker exec ${app} \
