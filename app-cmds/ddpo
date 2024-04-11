@@ -1,0 +1,1 @@
+accelerate launch /workspace/ddpo-pytorch/scripts/train.py --num_epochs=1 --train_gradient_accumulation_steps=1 --sample_num_steps=5 --sample_batch_size=5 --train_batch_size=1 --sample_num_batches_per_epoch=1 --pretrained_model_name_or_path=CompVis/stable-diffusion-v1-4 --use_lora=True --mixed_precision=fp16 --run_name=DDPO-Test
