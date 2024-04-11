@@ -2,8 +2,6 @@ import os
 import json
 import argparse
 
-# python3 parse-gpusum.py --in-file output/rnnt/v100_gpusum.json --out-dir /output/rnnt --output-prefix v100 --app-cmdline "bash scripts/train.sh" --metrics-file metrics.json | sudo tee output/rnnt/ncu-rnnt.sh
-
 def get_metrics(metrics_list):
     if metrics_list:
         with open(metrics_list) as f:
